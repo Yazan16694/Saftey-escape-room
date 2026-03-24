@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>مهمة الأمان الحماسية</title>
+<style>
+body {
+  font-family: Arial;
+  margin:0; padding:0;
+  background: url('https://i.ibb.co/YQZ4Bqf/room-background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+  text-align: center;
+}
+.overlay {
+  background-color: rgba(0,0,0,0.6);
+  min-height: 100vh;
+  padding: 20px;
+}
+.box {
+  background-color: rgba(255,255,255,0.95);
+  color: #000;
+  width: 380px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px gray;
+}
+button {
+  margin: 5px;
+  padding: 10px;
+  cursor: pointer;
+}
+#certificate {
+  display: none;
+  margin-top: 20px;
+  padding: 20px;
+  border: 3px solid gold;
+  background: #fffbe6;
+  color: #000;
+}
+.clickable {
+  border: 2px solid gold;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+  display: inline-block;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.85);
+}
+</style>
+</head>
+
+<body>
+<div class="overlay">
+  <!-- شاشة البداية -->
+  <div class="box" id="startBox">
+    <h2>🎮 مهمة الأمان الحماسية</h2>
+    <p>ادخل اسمك للبدء:</p>
+    <input type="text" id="studentName" placeholder="اسم الطالب">
+    <br><br>
+    <button onclick="startGame()">ابدأ</button>
+  </div>
+
+  <!-- شاشة اللعبة -->
+  <div class="box" id="game" style="display:none;">
+    <h3 id="welcome"></h3>
+    <p id="question"></p>
+    <div id="answers"></div>
+    <input type="text" id="codeInput" placeholder="ادخل الكود">
+    <br><br>
+    <button onclick="checkCode()">تحقق</button>
+    <p id="message"></p>
+  </div>
+
+  <!-- شاشة الشهادة -->
+  <div id="certificate">
+    <h2>🏆 شهادة إنجاز</h2>
+    <p>تُمنح هذه الشهادة للطالب:</p>
+    <h3 id="certName"></h3>
+    <p>لإتمامه بنجاح لعبة "مهمة الأمان الحماسية" 🛡️</p>
+    <p>👏 أحسنت العمل!</p>
+    <button onclick="window.print()">🖨️ اطبع الشهادة</button>
+  </div>
+</div>
+
+<script>
+let stage = 0;
+let code = "";
+let name = "";
+
+function startGame(){
+  name = document.getElementById("studentName").value;
+  if(name === ""){
+    alert("الرجاء إدخال الاسم");
+    return;
+  }
+  document.getElementById("startBox").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  document.getElementById("welcome").innerText = "مرحباً " + name;
+  loadStage();
+}
+
+function loadStage() {
+  let q = document.getElementById("question");
+  let a = document.getElementById("answers");
+  let msg = document.getElementById("message");
+  document.getElementById("codeInput").value = "";
+  msg.innerText = "";
+
+  switch(stage) {
+    case 0:
+      q.innerText = "اضغط على العناصر المهمة في حقيبة الطوارئ:";
+      a.innerHTML = `
+        <div class="clickable" onclick="addCorrect()">💧 ماء</div>
+        <div class="clickable" onclick="wrong()">🎲 ألعاب</div>
+        <div class="clickable" onclick="addCorrect()">🔦 مصباح</div>
+        <div class="clickable" onclick="wrong()">📚 كتب كثيرة</div>
+      `;
+      code = "";
+      break;
+
+    case 1:
+      q.innerText = "أين المكان الأكثر أمانًا؟";
+      a.innerHTML = `
+        <div class="clickable" onclick="setCode('SAFE')">🏠 غرفة داخلية</div>
+        <div class="clickable" onclick="wrong()">🪟 قرب النوافذ</div>
+        <div class="clickable" onclick="wrong()">🏢 على السطح</div>
+      `;
+      break;
+
+    case 2:
+      q.innerText = "رتب الخطوات الصحيحة للتصرف عند الطوارئ:";
+      a.innerHTML = `
+        <div class="clickable" onclick="order('1')">🧘 البقاء هادئًا</div>
+        <div class="clickable" onclick="order('2')">🏃 الذهاب لمكان آمن</div>
+        <div class="clickable" onclick="order('3')">👂 اتباع التعليمات</div>
+      `;
+      code = "";
+      break;
+
+    case 3:
+      q.innerText = "اختر ما يجب فعله عند سماع صفارة الإنذار:";
+      a.innerHTML = `
+        <div class="clickable" onclick="addCorrect()">🔇 البقاء هادئًا</div>
+        <div class="clickable" onclick="wrong()">🏃 الركض بلا خطة</div>
+        <div class="clickable" onclick="wrong()">🎉 الاحتفال</div>
+      `;
+      code = "";
+      break;
+
+    case 4:
+      q.innerText = "أكمل الكود السري للوصول للمرحلة التالية (عدد العناصر المهمة = 2):";
+      a.innerHTML = ``;
+      code = "2";
+      break;
+
+    case 5:
+      q.innerText = "اختر عناصر السلامة التي يجب التأكد منها يوميًا:";
+      a.innerHTML = `
+        <div class="clickable" onclick="addCorrect()">🔥 طفاية حريق</div>
+        <div class="clickable" onclick="addCorrect()">🚪 مخارج الطوارئ</div>
+        <div class="clickable" onclick="wrong()">🎧 سماعات الموسيقى</div>
+        <div class="clickable" onclick="wrong()">🖥️ كمبيوتر المدرسة</div>
+      `;
+      code = "";
+      break;
+
+    case 6:
+      document.getElementById("game").style.display = "none";
+      document.getElementById("certificate").style.display = "block";
+      document.getElementById("certName").innerText = name;
+      break;
+  }
+}
+
+function addCorrect(){ code += "1"; }
+function wrong(){ alert("❌ حاول مرة أخرى"); }
+function setCode(c){ code = c; }
+function order(n){ code += n; }
+
+function checkCode(){
+  let input = document.getElementById("codeInput").value;
+
+  if(stage === 0 && code.length === 2) { stage++; loadStage(); }
+  else if(stage === 1 && input === "SAFE") { stage++; loadStage(); }
+  else if(stage === 2 && input === "123") { stage++; loadStage(); }
+  else if(stage === 3 && code.length === 1) { stage++; loadStage(); }
+  else if(stage === 4 && input === "2") { stage++; loadStage(); }
+  else if(stage === 5 && code.length === 2) { stage++; loadStage(); }
+  else { document.getElementById("message").innerText = "❌ الكود غير صحيح"; }
+}
+</script>
+
+</body>
+</html>
